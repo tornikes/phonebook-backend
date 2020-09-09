@@ -1,0 +1,29 @@
+{
+  "name": "phonebook-backend",
+  "version": "1.0.0",
+  "description": "Repository for backend part of fullstackopen course.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tornikes/phonebook-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tornikes/phonebook-backend/issues"
+  },
+  "homepage": "https://github.com/tornikes/phonebook-backend#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
