@@ -6,31 +6,6 @@ const PhoneBookEntry = require('./models/phoneBookEntry');
 
 const app = express();
 
-let data = {
-    "persons": [
-        {
-            "name": "Arto Hellas",
-            "number": "040-123456",
-            "id": 1
-        },
-        {
-            "name": "Dan Abramov",
-            "number": "343556677",
-            "id": 3
-        },
-        {
-            "name": "Ada Lovelace",
-            "number": "34234234",
-            "id": 4
-        },
-        {
-            "name": "Adam Smith",
-            "number": "354434",
-            "id": 6
-        }
-    ]
-}
-
 app.use(cors());
 app.use(express.static('build'));
 app.use(express.json());
@@ -48,13 +23,13 @@ app.use(morgan(function (tokens, req, res) {
     return reply.join(' ');
 }));
 
-app.get('/info', function (req, res) {
-    const reply = `
-        <p>Phonebook has info for ${data.persons.length} people.</p>
-        <p>${new Date().toString()}</p>
-    `;
-    res.send(reply);
-});
+// app.get('/info', function (req, res) {
+//     const reply = `
+//         <p>Phonebook has info for ${data.persons.length} people.</p>
+//         <p>${new Date().toString()}</p>
+//     `;
+//     res.send(reply);
+// });
 
 app.get('/api/persons', function (req, res) {
     PhoneBookEntry.find({})
@@ -63,18 +38,12 @@ app.get('/api/persons', function (req, res) {
         });
 });
 
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-app.post('/api/persons', function (req, res) {
-    if (!req.body.name || !req.body.number) {
-        return res.status(400).json({ error: 'name or number missing' });
-    } else if (data.persons.find(p => p.name === req.body.name)) {
-        return res.status(400).json({ error: 'name must be unique' });
-    }
+app.post('/api/persons', function (req, res, next) {
+    // if (!req.body.name || !req.body.number) {
+    //     return res.status(400).json({ error: 'name or number missing' });
+    // } else if (data.persons.find(p => p.name === req.body.name)) {
+    //     return res.status(400).json({ error: 'name must be unique' });
+    // }
     const nextPerson = {
         name: req.body.name,
         number: req.body.number
@@ -85,12 +54,11 @@ app.post('/api/persons', function (req, res) {
             res.json(nextp);
         })
         .catch(err => {
-            console.log(err.message);
-            res.status(500);
+            next(err);
         });
 });
 
-app.get('/api/persons/:id', function (req, res) {
+app.get('/api/persons/:id', function (req, res, next) {
     PhoneBookEntry.findById(req.params.id)
         .then(data => res.json(data))
         .catch(err => next(err));
@@ -106,18 +74,24 @@ app.delete('/api/persons/:id', function (req, res, next) {
         });
 });
 
-app.put('/api/persons/:id', function(req, res, next) {
-    PhoneBookEntry.findByIdAndUpdate(req.params.id, { name: req.body.name, number: req.body.number }, {new: true})
+app.put('/api/persons/:id', function (req, res, next) {
+    console.log(req.body);
+    PhoneBookEntry.findByIdAndUpdate(req.params.id, { name: req.body.name, number: req.body.number }, { new: true, runValidators: true, context: 'query' })
         .then(data => {
             res.json(data);
         })
-        .catch(err => next(err));
+        .catch(err => {
+            console.log(err);
+            next(err);
+        });
 });
 
 app.use((err, req, res, next) => {
-    console.log(err.message);
-    res.status(400);
-    next(error);
+    console.log(err.name);
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({ error: err.message });
+    }
+    next(err);
 });
 
 const PORT = 3001;

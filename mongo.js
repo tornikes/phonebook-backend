@@ -25,6 +25,6 @@ const entry = new PhoneBookEntry({
 });
 
 entry.save().then(() => {
-    console.log("Saved!");
+    console.log('Saved!');
     mongoose.connection.close();
 });
