@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 
 const app = express();
 
@@ -28,6 +29,8 @@ let data = {
     ]
 }
 
+app.use(cors());
+app.use(express.static('build'));
 app.use(express.json());
 app.use(morgan(function (tokens, req, res) {
         const reply = [
@@ -73,7 +76,8 @@ app.post('/api/persons', function (req, res) {
         id: getRandomInt(10000000, 99999999)
     };
     data.persons.push(nextPerson);
-    res.status(204).end();
+    console.log(nextPerson);
+    res.json(nextPerson);
 });
 
 app.get('/api/persons/:id', function (req, res) {
